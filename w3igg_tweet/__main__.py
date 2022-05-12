@@ -1,7 +1,7 @@
 import argparse
 import sys
 from selenium import webdriver
-from w3igg_tweet import get_entry, tweet
+from core import get_entry, tweet
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Web3 is great! Just by the dip.')
