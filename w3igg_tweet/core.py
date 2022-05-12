@@ -6,7 +6,7 @@ import os
 
 W3IGG = "https://web3isgoinggreat.com/"
 
-def get_entry(driver, entry_url=""):
+def get_entry(driver, entry_url=None):
     """
     Gets the entry from W3IGG. When `entry_url` is specified, this function will
     get the entry that the URL points to, otherwise get the latest entry.
@@ -31,7 +31,7 @@ def get_entry(driver, entry_url=""):
     NOTE: The screenshot will be saved as a temporary file only.
     """
     w3igg_url = W3IGG
-    if len(entry_url) > 0:
+    if entry_url != None:
         w3igg_url = entry_url
     driver.get(w3igg_url)
     timeline = driver.find_element(by=By.ID, value="timeline")
@@ -39,7 +39,7 @@ def get_entry(driver, entry_url=""):
     latest = entries[0]
     description = latest.find_element(by=By.CLASS_NAME, value="timeline-description")
     with tempfile.NamedTemporaryFile(mode='wb', delete=False) as tmp_f:
-        tmp_screenshot_path = tmp_f.name
+        tmp_screenshot_path = tmp_f.name + ".png"
     description.screenshot(tmp_screenshot_path)
     date = description.find_element(by=By.XPATH, value="//time").text
     title = description.find_element(by=By.XPATH, value="//h2/button/span").text
