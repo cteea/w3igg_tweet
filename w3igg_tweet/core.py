@@ -35,7 +35,7 @@ def get_entry(driver, entry_url=None):
     """
     w3igg_url = W3IGG
     if entry_url != None:
-        w3igg_url = entry_url
+        w3igg_url = clean_and_normalize_url(entry_url)
     driver.get(w3igg_url)
     timeline = driver.find_element(by=By.ID, value="timeline")
     entries = timeline.find_elements(by=By.CLASS_NAME, value="timeline-entry")
@@ -134,3 +134,31 @@ def get_id_from_url(url):
     u = urlparse(url)
     q = parse_qs(u.query)
     return q["id"][0]
+
+def clean_and_normalize_url(entry_url):
+    """
+    Clean and normalizes the given `entry_url`.
+
+    Parameters
+    ----------
+    entry_url : str
+        The link to the entry
+
+    Returns
+    -------
+    str
+        Fixed, cleaned-up, and normalized version of the URL
+    """
+    parsed = urlparse(entry_url)
+    expected_netloc = urlparse(W3IGG).netloc
+    if parsed.netloc != expected_netloc:
+        raise Exception("invalid entry url", entry_url)
+    queries = parse_qs(parsed.query)
+    entry_id = ""
+    for q in queries:
+        if "id" in q:
+            entry_id = queries[q][0]
+    if entry_id == "":
+        raise Exception("invalid entry url", entry_url)
+    normalized = "{}?id={}".format(W3IGG, entry_id)
+    return normalized
