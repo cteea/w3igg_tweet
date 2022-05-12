@@ -1,8 +1,10 @@
 import tempfile
 from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webelement import WebElement
 from urllib.parse import urlparse, parse_qs
 import tweepy
 import os
+import html2text
 
 W3IGG = "https://web3isgoinggreat.com/"
 
@@ -24,6 +26,7 @@ def get_entry(driver, entry_url=None):
         a dictionary containing the following keys:
         - 'date': date of the entry
         - 'title': title of the entry
+        - 'body-text': clean text from the body of the entry
         - 'id': id of the entry
         - 'url': URL of the entry
         - 'screenshot': path to the saved temporary screenshot of the entry
@@ -37,6 +40,7 @@ def get_entry(driver, entry_url=None):
     timeline = driver.find_element(by=By.ID, value="timeline")
     entries = timeline.find_elements(by=By.CLASS_NAME, value="timeline-entry")
     latest = entries[0]
+    body_text = get_entry_body_text(latest)
     description = latest.find_element(by=By.CLASS_NAME, value="timeline-description")
     with tempfile.NamedTemporaryFile(mode='wb', delete=False) as tmp_f:
         tmp_screenshot_path = tmp_f.name + ".png"
@@ -47,7 +51,13 @@ def get_entry(driver, entry_url=None):
     title_button.click()
     url = driver.current_url
     id = get_id_from_url(url)
-    return {"date": date, "title": title, "id": id, "url": url, "screenshot": tmp_screenshot_path}
+    return {
+        "date": date,
+        "title": title,
+        "body-text": body_text,
+        "id": id,
+        "url": url,
+        "screenshot": tmp_screenshot_path}
 
 def tweet(entry):
     """
@@ -59,6 +69,7 @@ def tweet(entry):
         A dictionary containing information about the entry with the following keys:
         - 'date': date of the entry
         - 'title': title of the entry
+        - 'body-text': text from the entry body to be used as alt text for image
         - 'id': id of the entry
         - 'url': url of the entry
         - 'screenshot': path to the screenshot of the entry
@@ -80,7 +91,31 @@ def tweet(entry):
         url=entry["url"]
         )
     media = api.simple_upload(entry["screenshot"])
+    api.create_media_metadata(media.media_id, entry['body-text'])
     api.update_status(status=status, media_ids=[media.media_id,])
+
+def get_entry_body_text(entry: WebElement) -> str:
+    """
+    This is a helper function that turns the provided `entry` DOM element into clean text.
+
+    Parameters
+    ----------
+    entry : Selenium Remote WebDriver WebElement
+
+    Returns
+    -------
+    str
+        clean text of the entry body
+    """
+    entry = entry.find_element(by=By.CLASS_NAME, value="timeline-body-text-wrapper")
+    html = entry.get_attribute('outerHTML')
+    text_maker = html2text.HTML2Text()
+    text_maker.ignore_links = True
+    text_maker.ignore_emphasis = True
+    text_maker.ignore_images = True
+    text_maker.ignore_tables = True
+    text = text_maker.handle(html)
+    return text
 
 def get_id_from_url(url):
     """
