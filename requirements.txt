@@ -1,2 +1,3 @@
+html2text==2020.1.16
 selenium==4.1.5
 tweepy==4.9.0
