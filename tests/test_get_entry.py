@@ -1,3 +1,4 @@
+import filecmp
 import unittest
 import w3igg_tweet
 from selenium import webdriver
@@ -27,11 +28,7 @@ class TestGetEntry(unittest.TestCase):
         self.assertEqual(result["date"], expected["date"])
         self.assertEqual(result["title"], expected["title"])
         self.assertEqual(result["id"], expected["id"])
-        with open(result["screenshot"], mode="rb") as f:
-            result_screenshot = f.read()
-        with open(expected["screenshot"], mode="rb") as f:
-            expected_screenshot = f.read()
-        self.assertEqual(result_screenshot, expected_screenshot)
+        self.assertTrue(filecmp.cmp(result["screenshot"], expected["screenshot"]), "Incorrect screenshot produced.")
     
 if __name__ == "__main__":
     unittest.main()
