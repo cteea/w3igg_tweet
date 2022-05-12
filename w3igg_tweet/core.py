@@ -8,6 +8,7 @@ import html2text
 
 W3IGG = "https://web3isgoinggreat.com/"
 
+
 def get_entry(driver, entry_url=None):
     """
     Gets the entry from W3IGG. When `entry_url` is specified, this function will
@@ -42,7 +43,7 @@ def get_entry(driver, entry_url=None):
     latest = entries[0]
     body_text = get_entry_body_text(latest)
     description = latest.find_element(by=By.CLASS_NAME, value="timeline-description")
-    with tempfile.NamedTemporaryFile(mode='wb', delete=False) as tmp_f:
+    with tempfile.NamedTemporaryFile(mode="wb", delete=False) as tmp_f:
         tmp_screenshot_path = tmp_f.name + ".png"
     description.screenshot(tmp_screenshot_path)
     date = description.find_element(by=By.XPATH, value="//time").text
@@ -50,14 +51,16 @@ def get_entry(driver, entry_url=None):
     title_button = description.find_element(by=By.XPATH, value="//h2/button")
     title_button.click()
     url = driver.current_url
-    id = get_id_from_url(url)
+    entry_id = get_id_from_url(url)
     return {
         "date": date,
         "title": title,
         "body-text": body_text,
-        "id": id,
+        "id": entry_id,
         "url": url,
-        "screenshot": tmp_screenshot_path}
+        "screenshot": tmp_screenshot_path,
+    }
+
 
 def tweet(entry):
     """
@@ -82,17 +85,16 @@ def tweet(entry):
         consumer_key=consumer_key,
         consumer_secret=consumer_secret,
         access_token=access_token,
-        access_token_secret=access_token_secret
+        access_token_secret=access_token_secret,
     )
     api = tweepy.API(auth)
     status = "{title}\n\n{date}\n{url}".format(
-        title=entry["title"],
-        date=entry["date"],
-        url=entry["url"]
-        )
+        title=entry["title"], date=entry["date"], url=entry["url"]
+    )
     media = api.simple_upload(entry["screenshot"])
-    api.create_media_metadata(media.media_id, entry['body-text'])
+    api.create_media_metadata(media.media_id, entry["body-text"])
     api.update_status(status=status, media_ids=[media.media_id,])
+
 
 def get_entry_body_text(entry: WebElement) -> str:
     """
@@ -108,7 +110,7 @@ def get_entry_body_text(entry: WebElement) -> str:
         clean text of the entry body
     """
     entry = entry.find_element(by=By.CLASS_NAME, value="timeline-body-text-wrapper")
-    html = entry.get_attribute('outerHTML')
+    html = entry.get_attribute("outerHTML")
     text_maker = html2text.HTML2Text()
     text_maker.ignore_links = True
     text_maker.ignore_emphasis = True
@@ -116,6 +118,7 @@ def get_entry_body_text(entry: WebElement) -> str:
     text_maker.ignore_tables = True
     text = text_maker.handle(html)
     return text
+
 
 def get_id_from_url(url):
     """
@@ -134,6 +137,7 @@ def get_id_from_url(url):
     u = urlparse(url)
     q = parse_qs(u.query)
     return q["id"][0]
+
 
 def clean_and_normalize_url(entry_url):
     """

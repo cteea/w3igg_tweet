@@ -32,11 +32,12 @@ class TestGetEntry(unittest.TestCase):
         self.assertEqual(result["body-text"], expected["body-text"])
         self.assertEqual(result["id"], expected["id"])
         self.assertEqual(result["url"], expected["url"])
-        self.assertTrue(filecmp.cmp(result["screenshot"], expected["screenshot"]),
-                        "Incorrect screenshot produced: expected {}, but got {}".format(
-                            expected["screenshot"],
-                            result["screenshot"]
-                            ))
+        result_screenshot = result["screenshot"]
+        expected_screenshot = expected["screenshot"]
+        self.assertTrue(
+            filecmp.cmp(result["screenshot"], expected["screenshot"]),
+            f"Incorrect screenshot produced: expected {expected_screenshot}, but got {result_screenshot}"
+                        )
     
 if __name__ == "__main__":
     unittest.main()
