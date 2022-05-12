@@ -1,5 +1,4 @@
 import tempfile
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 from urllib.parse import urlparse, parse_qs
 
@@ -63,12 +62,3 @@ def get_id_from_url(url):
     u = urlparse(url)
     q = parse_qs(u.query)
     return q["id"][0]
-
-def main():
-    driver = webdriver.Firefox()
-    latest = get_entry(driver)
-    print(latest)
-    driver.quit()
-
-if __name__ == "__main__":
-    main()
