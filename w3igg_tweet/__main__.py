@@ -1,13 +1,19 @@
+"""A simple CLI tool to auto-generate Tweets for @web3isgreat."""
+
 import argparse
 import sys
+
 from selenium import webdriver
 from dotenv import load_dotenv
+
 from .core import get_entry, tweet
 
 
 if __name__ == "__main__":
     load_dotenv()
-    parser = argparse.ArgumentParser(description="Web3 is great! Just by the dip.")
+    parser = argparse.ArgumentParser(
+        description="A CLI tool to auto-generate Tweets for @web3isgreat."
+    )
     parser.add_argument("--url", type=str, help="URL of the entry to tweet")
     args = parser.parse_args()
     options = webdriver.firefox.options.Options()

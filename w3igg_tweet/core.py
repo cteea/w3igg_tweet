@@ -1,9 +1,18 @@
+"""
+This module contains the core functionality for auto-generating tweets.
+
+There are two core components:
+- get_entry(driver, entry_url)
+- tweet(entry)
+"""
+
 import tempfile
+from urllib.parse import urlparse, parse_qs
+import os
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
-from urllib.parse import urlparse, parse_qs
 import tweepy
-import os
 import html2text
 
 W3IGG = "https://web3isgoinggreat.com/"
@@ -35,7 +44,7 @@ def get_entry(driver, entry_url=None):
     NOTE: The screenshot will be saved as a temporary file only.
     """
     w3igg_url = W3IGG
-    if entry_url != None:
+    if entry_url is not None:
         w3igg_url = clean_and_normalize_url(entry_url)
     driver.get(w3igg_url)
     timeline = driver.find_element(by=By.ID, value="timeline")
@@ -88,12 +97,18 @@ def tweet(entry):
         access_token_secret=access_token_secret,
     )
     api = tweepy.API(auth)
-    status = "{title}\n\n{date}\n{url}".format(
-        title=entry["title"], date=entry["date"], url=entry["url"]
-    )
+    entry_title = entry["title"]
+    entry_date = entry["date"]
+    entry_url = entry["url"]
+    status = f"{entry_title}\n\n{entry_date}\n{entry_url}"
     media = api.simple_upload(entry["screenshot"])
     api.create_media_metadata(media.media_id, entry["body-text"])
-    api.update_status(status=status, media_ids=[media.media_id,])
+    api.update_status(
+        status=status,
+        media_ids=[
+            media.media_id,
+        ],
+    )
 
 
 def get_entry_body_text(entry: WebElement) -> str:
@@ -128,15 +143,15 @@ def get_id_from_url(url):
     ----------
     url : str
         The URL of the entry.
-    
+
     Returns
     -------
     str
         id of the entry
     """
-    u = urlparse(url)
-    q = parse_qs(u.query)
-    return q["id"][0]
+    parsed_url = urlparse(url)
+    parsed_qs = parse_qs(parsed_url.query)
+    return parsed_qs["id"][0]
 
 
 def clean_and_normalize_url(entry_url):
@@ -159,10 +174,10 @@ def clean_and_normalize_url(entry_url):
         raise Exception("invalid entry url", entry_url)
     queries = parse_qs(parsed.query)
     entry_id = ""
-    for q in queries:
-        if "id" in q:
-            entry_id = queries[q][0]
+    for query, value in queries.items():
+        if "id" in query:
+            entry_id = value[0]
     if entry_id == "":
         raise Exception("invalid entry url", entry_url)
-    normalized = "{}?id={}".format(W3IGG, entry_id)
+    normalized = f"{W3IGG}?id={entry_id}"
     return normalized
