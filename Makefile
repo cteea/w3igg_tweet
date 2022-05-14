@@ -1,8 +1,9 @@
-.SILENT: requirements .env init
+.SILENT: requirements .env init venv
 
 VENV = venv
 PYTHON = $(VENV)/bin/python3
 PIP = $(VENV)/bin/pip
+SOURCE_VENV = source $(VENV)/bin/activate
 
 init: venv .env requirements
 	echo "Initialization done."
@@ -24,6 +25,7 @@ test: venv
 	echo "ACCESS_TOKEN_SECRET='your Twitter access token secret'" >> .env
 
 venv:
+	echo "Creating Python virtual environment..."
 	python3 -m venv ./venv
 
 .PHONY: requirements test init
