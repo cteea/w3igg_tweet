@@ -1,15 +1,19 @@
 .SILENT: requirements .env init
 
-init: .env requirements
+VENV = venv
+PYTHON = $(VENV)/bin/python3
+PIP = $(VENV)/bin/pip
+
+init: venv .env requirements
 	echo "Initialization done."
 	echo "Please put your Twitter API access keys inside the '.env' file."
 
-requirements:
+requirements: venv
 	echo "Installing requirements..."
-	pip install -q -r requirements.txt
+	$(PIP) install -q -r requirements.txt
 
-test:
-	python -m unittest discover -v -s tests
+test: venv
+	$(PYTHON) -m unittest discover -v -s tests
 
 .env:
 	echo "Creating .env file..."
@@ -18,5 +22,8 @@ test:
 	echo "CONSUMER_SECRET='your Twitter consumer secret'" >> .env
 	echo "ACCESS_TOKEN='your Twitter access token'" >> .env
 	echo "ACCESS_TOKEN_SECRET='your Twitter access token secret'" >> .env
+
+venv:
+	python3 -m venv ./venv
 
 .PHONY: requirements test init
