@@ -27,5 +27,6 @@ test: venv
 venv:
 	echo "Creating Python virtual environment..."
 	python3 -m venv ./venv
+	$(PIP) install --upgrade pip
 
 .PHONY: requirements test init

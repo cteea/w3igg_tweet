@@ -1,13 +1,20 @@
+"""Tests"""
+
 import filecmp
 import unittest
-import w3igg_tweet
+
 from selenium import webdriver
 
+import w3igg_tweet
+
+
 class TestGetEntry(unittest.TestCase):
+    """Test getting entry."""
+
     def setUp(self) -> None:
         super().setUp()
         self.driver = webdriver.Firefox()
-    
+
     def tearDown(self):
         super().tearDown()
         self.driver.quit()
@@ -22,11 +29,11 @@ class TestGetEntry(unittest.TestCase):
         expected = {
             "date": "May 11, 2022",
             "title": "Terra $LUNA token drops in price by 98% amidst ongoing TerraUSD stablecoin collapse",
-            "body-text": 'Terraform Labs develops two cryptocurrencies: TerraUSD ($UST), an algorithmic\nstablecoin meant to be pegged to the U.S. dollar, and $LUNA, a crypto asset\nused both for speculation and to help maintain the UST peg. As UST\ndramatically lost its peg throughout early May, Luna plummeted in value\nalongside it. Luna was trading between $80 and $90 in the first days of May,\nbut as of May 11 had lost 98% of its value and was hovering between $2 and $3.\nBy midday on May 12, the token was trading at or below $0.01.\n\nSuch a dramatic crash in a cryptocurrency that was in the top ten by market\ncap has been devastating to some. Some members of the Terra/Luna community on\nReddit have spoken of being massively over-invested in Luna, with some\ndescribing losing their life savings and appearing to be in crisis.\n\n',
+            "body-text": "Terraform Labs develops two cryptocurrencies: TerraUSD ($UST), an algorithmic\nstablecoin meant to be pegged to the U.S. dollar, and $LUNA, a crypto asset\nused both for speculation and to help maintain the UST peg. As UST\ndramatically lost its peg throughout early May, Luna plummeted in value\nalongside it. Luna was trading between $80 and $90 in the first days of May,\nbut as of May 11 had lost 98% of its value and was hovering between $2 and $3.\nBy midday on May 12, the token was trading at or below $0.01.\n\nSuch a dramatic crash in a cryptocurrency that was in the top ten by market\ncap has been devastating to some. Some members of the Terra/Luna community on\nReddit have spoken of being massively over-invested in Luna, with some\ndescribing losing their life savings and appearing to be in crisis.\n\n",
             "id": "terra-luna-token-drops-in-price-by-98-amidst-ongoing-terrausd-stablecoin-collapse",
             "url": url,
-            "screenshot": "tests/assets/sample_screenshot.png"
-            }
+            "screenshot": "tests/assets/sample_screenshot.png",
+        }
         self.assertEqual(result["date"], expected["date"])
         self.assertEqual(result["title"], expected["title"])
         self.assertEqual(result["body-text"], expected["body-text"])
@@ -36,8 +43,9 @@ class TestGetEntry(unittest.TestCase):
         expected_screenshot = expected["screenshot"]
         self.assertTrue(
             filecmp.cmp(result["screenshot"], expected["screenshot"]),
-            f"Incorrect screenshot produced: expected {expected_screenshot}, but got {result_screenshot}"
-                        )
-    
+            f"Incorrect screenshot produced: expected {expected_screenshot}, but got {result_screenshot}",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
