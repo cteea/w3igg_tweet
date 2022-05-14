@@ -4,6 +4,8 @@ import filecmp
 import unittest
 
 from selenium import webdriver
+from selenium.webdriver.firefox.service import Service
+from webdriver_manager.firefox import GeckoDriverManager
 
 import w3igg_tweet
 
@@ -13,7 +15,7 @@ class TestGetEntry(unittest.TestCase):
 
     def setUp(self) -> None:
         super().setUp()
-        self.driver = webdriver.Firefox()
+        self.driver = webdriver.Firefox(service=Service(GeckoDriverManager().install()))
 
     def tearDown(self):
         super().tearDown()
