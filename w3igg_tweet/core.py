@@ -62,6 +62,7 @@ def get_entry(driver, entry_url=None):
     # and the grift counter won't get in the way
     driver.get(url)
     driver.refresh()
+    remove_fixed_at_bottom_buttons(driver)
     entry = get_top_most_entry(driver)
     tmp_screenshot_path = get_screenshot(entry)
     return {
@@ -232,6 +233,19 @@ def get_screenshot(entry):
     #description = entry.find_element(by=By.CLASS_NAME, value="timeline-description")
     #add_background_to_screenshot(tmp_screenshot_path)
     return tmp_screenshot_path
+
+def remove_fixed_at_bottom_buttons(driver):
+    """
+    Remove the "Scroll to top" and "Show setting panel" buttons.
+
+    Parameters
+    ----------
+    driver : WebDriver
+    """
+    driver.execute_script("""
+    var buttons = document.getElementsByClassName("fix-at-bottom")[0];
+    buttons.parentNode.removeChild(buttons);
+    """)
 
 def process_screenshot(screenshot_path):
     """
