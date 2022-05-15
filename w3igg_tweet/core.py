@@ -14,6 +14,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 import tweepy
 import html2text
+from PIL import Image
 
 W3IGG = "https://web3isgoinggreat.com/"
 
@@ -46,21 +47,23 @@ def get_entry(driver, entry_url=None):
     w3igg_url = W3IGG
     if entry_url is not None:
         w3igg_url = clean_and_normalize_url(entry_url)
+    driver.set_window_size(900, 900)
     driver.get(w3igg_url)
-    timeline = driver.find_element(by=By.ID, value="timeline")
-    entries = timeline.find_elements(by=By.CLASS_NAME, value="timeline-entry")
-    latest = entries[0]
-    body_text = get_entry_body_text(latest)
-    description = latest.find_element(by=By.CLASS_NAME, value="timeline-description")
-    with tempfile.NamedTemporaryFile(mode="wb", delete=False) as tmp_f:
-        tmp_screenshot_path = tmp_f.name + ".png"
-    description.screenshot(tmp_screenshot_path)
+    entry = get_top_most_entry(driver)
+    body_text = get_entry_body_text(entry)
+    description = entry.find_element(by=By.CLASS_NAME, value="timeline-description")
     date = description.find_element(by=By.XPATH, value="//time").text
     title = description.find_element(by=By.XPATH, value="//h2/button/span").text
     title_button = description.find_element(by=By.XPATH, value="//h2/button")
     title_button.click()
     url = driver.current_url
     entry_id = get_id_from_url(url)
+    # Reload the page with the direct url of the entry so that the entry will be at the top
+    # and the grift counter won't get in the way
+    driver.get(url)
+    driver.refresh()
+    entry = get_top_most_entry(driver)
+    tmp_screenshot_path = get_screenshot(entry)
     return {
         "date": date,
         "title": title,
@@ -132,6 +135,7 @@ def get_entry_body_text(entry: WebElement) -> str:
     text_maker.ignore_images = True
     text_maker.ignore_tables = True
     text = text_maker.handle(html)
+    text = text[:1000] # max Twitter AlteText is 1000
     return text
 
 
@@ -181,3 +185,72 @@ def clean_and_normalize_url(entry_url):
         raise Exception("invalid entry url", entry_url)
     normalized = f"{W3IGG}?id={entry_id}"
     return normalized
+
+def get_top_most_entry(driver):
+    """
+    Get the top most entry. For instance, if the `driver` is currently at
+    https://web3isgoinggreat.com, then this will get the latest entry. If
+    the `driver` is at a specific entry
+    (e.g. https://web3isgoinggreat.com/?id=fbi-charges-eminifx-ceo-with-fraud)
+    then it will get that entry.
+
+    Parameters
+    ----------
+    driver : WebDriver
+        A Selenium WebDriver
+
+    Returns
+    -------
+    WebElement
+        A Selenium WebElement of the latest entry
+    """
+    timeline = driver.find_element(by=By.ID, value="timeline")
+    entries = timeline.find_elements(by=By.CLASS_NAME, value="timeline-entry")
+    topmost = entries[0]
+    return topmost
+
+
+def get_screenshot(entry):
+    """
+    Take the screenshot of the entry.
+
+    Parameters
+    ----------
+    entry : Selenium Remote WebDriver WebElement
+
+    Returns
+    -------
+    str
+        Path to the screenshot
+
+    NOTE: The screenshot will only be saved as temporary file.
+    """
+    with tempfile.NamedTemporaryFile(mode="wb", delete=False) as tmp_f:
+        tmp_screenshot_path = tmp_f.name + ".png"
+    entry.screenshot(tmp_screenshot_path)
+    process_screenshot(tmp_screenshot_path)
+    #description = entry.find_element(by=By.CLASS_NAME, value="timeline-description")
+    #add_background_to_screenshot(tmp_screenshot_path)
+    return tmp_screenshot_path
+
+def process_screenshot(screenshot_path):
+    """
+    Remove unwated portions of the screenshot and
+    composite it onto a background at the center.
+
+    Parameters
+    ----------
+    screenshot_path : str
+        path to the screenshot
+    """
+    screenshot = Image.open(screenshot_path)
+    width, height = screenshot.size
+    left, top, right, bottom = 50, 0, width-50, height
+    screenshot = screenshot.crop((left, top, right, bottom))
+    width, height = screenshot.size
+    margin = 10
+    bg_w, bg_h = width+(margin*2), height+(margin*2)
+    background = Image.new("RGB", (bg_w, bg_h), (238, 238, 238))
+    offset = ((bg_w-width)//2, (bg_h-height)//2)
+    background.paste(screenshot, offset)
+    background.save(screenshot_path)
