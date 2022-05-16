@@ -246,13 +246,10 @@ def process_screenshot(screenshot_path):
     """
     screenshot = Image.open(screenshot_path)
     width, height = screenshot.size
-    left, top, right, bottom = 160, 0, width-50, height
-    screenshot = screenshot.crop((left, top, right, bottom))
-    width, height = screenshot.size
     margin = 50
     bg_w, bg_h = width+(margin*2), height+(margin*2)
     background = Image.new("RGB", (bg_w, bg_h), (238, 238, 238))
     offset = ((bg_w-width)//2, (bg_h-height)//2)
     background.paste(screenshot, offset)
-    background = background.crop((15, 0, background.width, background.height))
+    background = background.crop((190, 0, background.width-30, background.height))
     background.save(screenshot_path)
