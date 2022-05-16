@@ -3,10 +3,6 @@
 import filecmp
 import unittest
 
-from selenium import webdriver
-from selenium.webdriver.firefox.service import Service
-from webdriver_manager.firefox import GeckoDriverManager
-
 import w3igg_tweet
 
 
@@ -15,7 +11,7 @@ class TestGetEntry(unittest.TestCase):
 
     def setUp(self) -> None:
         super().setUp()
-        self.driver = webdriver.Firefox(service=Service(GeckoDriverManager().install()))
+        self.driver = w3igg_tweet.get_driver()
 
     def tearDown(self):
         super().tearDown()
@@ -31,7 +27,7 @@ class TestGetEntry(unittest.TestCase):
         expected = {
             "date": "May 11, 2022",
             "title": "Terra $LUNA token drops in price by 98% amidst ongoing TerraUSD stablecoin collapse",
-            "body-text": "Terraform Labs develops two cryptocurrencies: TerraUSD ($UST), an algorithmic\nstablecoin meant to be pegged to the U.S. dollar, and $LUNA, a crypto asset\nused both for speculation and to help maintain the UST peg. As UST\ndramatically lost its peg throughout early May, Luna plummeted in value\nalongside it. Luna was trading between $80 and $90 in the first days of May,\nbut as of May 11 had lost 98% of its value and was hovering between $2 and $3.\nBy midday on May 12, the token was trading at or below $0.01.\n\nSuch a dramatic crash in a cryptocurrency that was in the top ten by market\ncap has been devastating to some. Some members of the Terra/Luna community on\nReddit have spoken of being massively over-invested in Luna, with some\ndescribing losing their life savings and appearing to be in crisis.\n\n",
+            "body-text": "Terraform Labs develops two cryptocurrencies: TerraUSD ($UST), an algorithmic stablecoin meant to be pegged to the U.S. dollar, and $LUNA, a crypto asset used both for speculation and to help maintain the UST peg. As UST dramatically lost its peg throughout early May, Luna plummeted in value alongside it. Luna was trading between $80 and $90 in the first days of May, but as of May 11 had lost 98% of its value and was hovering between $2 and $3. By midday on May 12, the token was trading at or below $0.01. Such a dramatic crash in a cryptocurrency that was in the top ten by market cap has been devastating to some. Some members of the Terra/Luna community on Reddit have spoken of being massively over-invested in Luna, with some describing losing their life savings and appearing to be in crisis.",
             "id": "terra-luna-token-drops-in-price-by-98-amidst-ongoing-terrausd-stablecoin-collapse",
             "url": url,
             "screenshot": "tests/assets/sample_screenshot.png",

@@ -11,12 +11,27 @@ import os
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
+from selenium import webdriver
+from selenium.webdriver.firefox.service import Service
+from webdriver_manager.firefox import GeckoDriverManager
 import tweepy
 import html2text
 from PIL import Image
 
 W3IGG = "https://web3isgoinggreat.com/"
 
+def get_driver():
+    """
+    Returns a Gecko WebDriver with options and preferences set.
+    """
+    firefox_options = webdriver.FirefoxOptions()
+    firefox_options.headless = True
+    firefox_options.set_preference("layout.css.devPixelsPerPx", "4")
+    driver = webdriver.Firefox(
+        service=Service(GeckoDriverManager(log_level=0).install()),
+        options=firefox_options
+    )
+    return driver
 
 def get_entry(driver, entry_url=None):
     """
@@ -128,8 +143,10 @@ def get_entry_body_text(entry: WebElement) -> str:
     text_maker.ignore_images = True
     text_maker.ignore_tables = True
     text = text_maker.handle(html)
-    text = text.replace('\n', '')
-    text = text[:1000] # max Twitter AlteText is 1000
+    text = text.replace('\n\n', '\n')
+    text = text.replace('\n', ' ')
+    text = text.strip()
+    text = text[:1000] # max Twitter AltText is 1000
     return text
 
 
