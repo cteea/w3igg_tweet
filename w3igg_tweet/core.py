@@ -128,6 +128,7 @@ def get_entry_body_text(entry: WebElement) -> str:
     text_maker.ignore_images = True
     text_maker.ignore_tables = True
     text = text_maker.handle(html)
+    text = text.replace('\n', '')
     text = text[:1000] # max Twitter AlteText is 1000
     return text
 
