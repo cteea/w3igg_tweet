@@ -18,8 +18,12 @@ if __name__ == "__main__":
     )
     parser.add_argument("--url", type=str, help="URL of the entry to tweet")
     args = parser.parse_args()
+    firefox_options = webdriver.FirefoxOptions()
+    firefox_options.headless = True
+    firefox_options.set_preference("layout.css.devPixelsPerPx", "4")
     driver = webdriver.Firefox(
-        service=Service(GeckoDriverManager(log_level=0).install())
+        service=Service(GeckoDriverManager(log_level=0).install()),
+        options=firefox_options
     )
     entry = get_entry(driver, args.url)
     try:
