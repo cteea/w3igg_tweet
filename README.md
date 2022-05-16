@@ -10,7 +10,7 @@ git clone https://github.com/0pling/w3igg_tweet.git
 
 `cd` into the cloned repo and initialize:
 ```
-make init
+cd w3igg_tweet && make init
 ```
 
 Put your Twitter API authentication credentials inside `.env`:
@@ -22,7 +22,7 @@ ACCESS_TOKEN_SECRET='access token secret'
 ``` 
 
 ## Usage
-`cd` into "w3igg_tweet" and activate the Python virtual environment:
+`cd` into the cloned repo and activate the Python virtual environment:
 ```
 source ./venv/bin/activate
 ```
