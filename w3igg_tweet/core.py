@@ -6,7 +6,6 @@ There are two core components:
 - tweet(entry)
 """
 
-import tempfile
 from urllib.parse import urlparse, parse_qs
 import os
 
@@ -47,8 +46,10 @@ def get_entry(driver, entry_url=None):
         w3igg_url = clean_and_normalize_url(entry_url)
     driver.set_window_size(650, 900)
     driver.get(w3igg_url)
+    remove_fixed_at_bottom_buttons(driver)
     entry = get_top_most_entry(driver)
     body_text = get_entry_body_text(entry)
+    screenshot_path = get_screenshot(entry)
     description = entry.find_element(by=By.CLASS_NAME, value="timeline-description")
     date = description.find_element(by=By.XPATH, value="//time").text
     title = description.find_element(by=By.XPATH, value="//h2/button/span").text
@@ -56,20 +57,13 @@ def get_entry(driver, entry_url=None):
     title_button.click()
     url = driver.current_url
     entry_id = get_id_from_url(url)
-    # Reload the page with the direct url of the entry so that the entry will be at the top
-    # and the grift counter won't get in the way
-    driver.get(url)
-    driver.refresh()
-    remove_fixed_at_bottom_buttons(driver)
-    entry = get_top_most_entry(driver)
-    tmp_screenshot_path = get_screenshot(entry)
     return {
         "date": date,
         "title": title,
         "body-text": body_text,
         "id": entry_id,
         "url": url,
-        "screenshot": tmp_screenshot_path,
+        "screenshot": screenshot_path,
     }
 
 
@@ -229,7 +223,7 @@ def get_screenshot(entry):
 
 def remove_fixed_at_bottom_buttons(driver):
     """
-    Remove the "Scroll to top" and "Show setting panel" buttons.
+    Remove the "Scroll to top" , "Show setting panel" buttons and the grift counter.
 
     Parameters
     ----------
