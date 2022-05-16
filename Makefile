@@ -29,4 +29,4 @@ venv:
 	python3 -m venv ./venv
 	$(PIP) install --upgrade pip
 
-.PHONY: requirements test init
+.PHONY: requirements test init venv
