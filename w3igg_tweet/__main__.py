@@ -16,7 +16,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="A CLI tool to auto-generate Tweets for @web3isgreat."
     )
-    parser.add_argument("--url", type=str, help="URL of the entry to tweet")
+    parser.add_argument("-s", "--skip-check", action="store_true", help="tweet immediately without asking for confirmation")
+    parser.add_argument("--url", type=str, help="URL of the entry to tweet (default is the latest entry)")
     args = parser.parse_args()
     firefox_options = webdriver.FirefoxOptions()
     firefox_options.headless = True
@@ -26,6 +27,25 @@ if __name__ == "__main__":
         options=firefox_options
     )
     entry = get_entry(driver, args.url)
+    if not args.skip_check:
+        print("\nTitle")
+        print("=====")
+        print(entry['title'])
+        print("\nDate")
+        print("====")
+        print(entry['date'])
+        print("\nLink")
+        print("====")
+        print(entry['url'])
+        print("\nScreenshot")
+        print("==========")
+        print(entry['screenshot'])
+        print("\nAlt text")
+        print("==========")
+        print(entry['body-text'])
+        confirmation = input("\nTweet it? [y/N]: ")
+        if confirmation.lower() != 'y':
+            sys.exit()
     try:
         tweet(entry)
         title = entry["title"]
