@@ -41,13 +41,11 @@ def get_entry(driver, entry_url=None):
         - 'id': id of the entry
         - 'url': URL of the entry
         - 'screenshot': path to the saved temporary screenshot of the entry
-
-    NOTE: The screenshot will be saved as a temporary file only.
     """
     w3igg_url = W3IGG
     if entry_url is not None:
         w3igg_url = clean_and_normalize_url(entry_url)
-    driver.set_window_size(900, 900)
+    driver.set_window_size(650, 900)
     driver.get(w3igg_url)
     entry = get_top_most_entry(driver)
     body_text = get_entry_body_text(entry)
@@ -223,16 +221,11 @@ def get_screenshot(entry):
     -------
     str
         Path to the screenshot
-
-    NOTE: The screenshot will only be saved as temporary file.
     """
-    with tempfile.NamedTemporaryFile(mode="wb", delete=False) as tmp_f:
-        tmp_screenshot_path = tmp_f.name + ".png"
-    entry.screenshot(tmp_screenshot_path)
-    process_screenshot(tmp_screenshot_path)
-    #description = entry.find_element(by=By.CLASS_NAME, value="timeline-description")
-    #add_background_to_screenshot(tmp_screenshot_path)
-    return tmp_screenshot_path
+    screenshot_path = "./screenshot.png"
+    entry.screenshot(screenshot_path)
+    process_screenshot(screenshot_path)
+    return screenshot_path
 
 def remove_fixed_at_bottom_buttons(driver):
     """
@@ -259,12 +252,13 @@ def process_screenshot(screenshot_path):
     """
     screenshot = Image.open(screenshot_path)
     width, height = screenshot.size
-    left, top, right, bottom = 50, 0, width-50, height
+    left, top, right, bottom = 160, 0, width-50, height
     screenshot = screenshot.crop((left, top, right, bottom))
     width, height = screenshot.size
-    margin = 10
+    margin = 50
     bg_w, bg_h = width+(margin*2), height+(margin*2)
     background = Image.new("RGB", (bg_w, bg_h), (238, 238, 238))
     offset = ((bg_w-width)//2, (bg_h-height)//2)
     background.paste(screenshot, offset)
+    background = background.crop((15, 0, background.width, background.height))
     background.save(screenshot_path)
