@@ -72,6 +72,7 @@ def get_entry(driver, entry_url=None):
     title_button.click()
     url = driver.current_url
     entry_id = get_id_from_url(url)
+    driver.close()
     return {
         "date": date,
         "title": title,

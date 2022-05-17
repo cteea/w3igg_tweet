@@ -45,6 +45,7 @@ if __name__ == "__main__":
         print(entry["body-text"])
         confirmation = input("\nTweet it? [y/N]: ")
         if confirmation.lower() != "y":
+            driver.quit()
             sys.exit()
     try:
         tweet(entry)
